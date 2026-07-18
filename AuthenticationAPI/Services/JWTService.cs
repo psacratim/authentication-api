@@ -17,7 +17,7 @@ public class JWTService(
 {
     private readonly JwtOptions jwtOptions = _jwtOptions.Value;
 
-    public Result<JWTResponse> GenerateNewJWT(Account account)
+    public Result<JWTResponse> GenerateNewJWT(Account account, string deviceName)
     {
         var claims = new List<Claim>{
             new(JwtRegisteredClaimNames.Sub, account.Id.ToString()),

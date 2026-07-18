@@ -17,4 +17,11 @@ public class Result
         ErrorHttpCode = httpCode,
         ErrorIdentifier = errorIdentifier
     };
+
+    public static Result Failure(string errorIdentifier = "no_identifier") => new()
+    {
+        IsError = true,
+        ErrorHttpCode = StatusCodes.Status500InternalServerError,
+        ErrorIdentifier = errorIdentifier
+    };
 }

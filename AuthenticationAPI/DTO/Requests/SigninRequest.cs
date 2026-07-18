@@ -1,13 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using AuthenticationAPI.Common.Enums;
 
 namespace AuthenticationAPI.DTO.Requests;
 
 public record SigninRequest
 {
-    [Required]
-    [EnumDataType(typeof(AuthMethod))]
-    public required AuthMethod AuthMethod { get; set; }
 
     [EmailAddress]
     [MaxLength(80)]

@@ -1,5 +1,6 @@
 ﻿using AuthenticationAPI.Common.Interfaces;
 using AuthenticationAPI.Common.Results;
+using AuthenticationAPI.Common.Types;
 using AuthenticationAPI.DTO.Requests;
 using AuthenticationAPI.DTO.Responses;
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +25,7 @@ public class AuthController(
         if (result.IsError)
             return StatusCode(result.ErrorHttpCode, result.ErrorIdentifier);
 
-        var addJwtCookieResult = TryAddJwtInCookies(result.Value);
+        var addJwtCookieResult = TrySetupCookiesForSession(result.Value);
         if (addJwtCookieResult.IsError)
         {
             return StatusCode(result.ErrorHttpCode, result.ErrorIdentifier);
@@ -43,7 +44,7 @@ public class AuthController(
         if (result.IsError)
             return StatusCode(result.ErrorHttpCode, result.ErrorIdentifier);
 
-        var addJwtCookieResult = TryAddJwtInCookies(result.Value);
+        var addJwtCookieResult = TrySetupCookiesForSession(result.Value);
         if (addJwtCookieResult.IsError)
         {
             return StatusCode(result.ErrorHttpCode, result.ErrorIdentifier);
@@ -91,7 +92,7 @@ public class AuthController(
         if (result.IsError)
             return StatusCode(result.ErrorHttpCode, result.ErrorIdentifier);
 
-        var addJwtCookieResult = TryAddJwtInCookies(result.Value, true);
+        var addJwtCookieResult = TrySetupCookiesForSession(result.Value, true);
         if (addJwtCookieResult.IsError)
         {
             return StatusCode(result.ErrorHttpCode, result.ErrorIdentifier);
@@ -123,9 +124,9 @@ public class AuthController(
         Response.Cookies.Delete("X-Refresh-Token", cookieOptions);
     }
 
-    private Result TryAddJwtInCookies(JWTResponse? jwtResponse, bool removedOldCookies = false)
+    private Result TrySetupCookiesForSession(UserSession? userSession, bool removedOldCookies = false)
     {
-        if (jwtResponse == null)
+        if (userSession == null)
             return Result.Failure(StatusCodes.Status500InternalServerError, "internal.null_value");
 
         var cookieOptions = GetCookieOptions();
@@ -135,8 +136,8 @@ public class AuthController(
             ClearJwtTokens();
         }
 
-        Response.Cookies.Append("X-Access-Token", jwtResponse.AccessToken, cookieOptions);
-        Response.Cookies.Append("X-Refresh-Token", jwtResponse.RefreshToken.ToString(), cookieOptions);
+        Response.Cookies.Append("X-Access-Token", userSession.AccessToken, cookieOptions);
+        Response.Cookies.Append("X-Refresh-Token", userSession.RefreshToken.ToString(), cookieOptions);
 
         return Result.Success();
     }

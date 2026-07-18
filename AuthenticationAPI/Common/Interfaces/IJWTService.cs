@@ -6,5 +6,5 @@ namespace AuthenticationAPI.Common.Interfaces;
 
 public interface IJWTService
 {
-    public Result<JWTResponse> GenerateNewJWT(Account account);
+    public Result<JWTResponse> GenerateNewJWT(Account account, string deviceName);
 }

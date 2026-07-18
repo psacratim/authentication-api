@@ -16,4 +16,9 @@ public class Result<T> : Result
         ErrorHttpCode = httpCode,
         ErrorIdentifier = errorIdentifier
     };
+
+    public new static Result<T> Failure(string errorIdentifier = "no_identifier")
+    {
+        return Failure(StatusCodes.Status500InternalServerError, errorIdentifier);
+    }
 }
