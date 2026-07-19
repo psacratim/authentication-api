@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-
-namespace AuthenticationAPI.Database.Entities;
+﻿namespace AuthenticationAPI.Database.Entities;
 
 public class Account
 {

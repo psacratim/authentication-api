@@ -1,8 +1,6 @@
 ﻿using AuthenticationAPI.Database.Entities;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AuthenticationAPI.Database.Configurations;
 
@@ -17,6 +15,7 @@ public class AccountSessionConfig : IEntityTypeConfiguration<AccountSession>
         builder.Property(entity => entity.IsRevoked).IsRequired().HasDefaultValue(false);
         builder.Property(entity => entity.Device).IsRequired().HasDefaultValue("Unknown");
         builder.Property(entity => entity.CreatedAt).IsRequired().HasDefaultValueSql("NOW()");
+        builder.Property(entity => entity.ExpiresAt).IsRequired();
 
         builder.HasIndex(entity => entity.RefreshToken).IsUnique();
 

@@ -1,10 +1,10 @@
 using AuthenticationAPI.Common.Results;
 
-namespace AuthenticationAPI.Common;
+namespace AuthenticationAPI.Extensions;
 
-public class Utilities
+public static class ResultExtensions
 {
-    public static Result ValidateResult<T>(Result<T> result)
+    public static Result Validate<T>(this Result<T> result)
     {
         if (result.IsError)
             return Result.Failure(result.ErrorHttpCode, result.ErrorIdentifier);

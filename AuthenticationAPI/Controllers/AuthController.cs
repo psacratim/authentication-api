@@ -40,7 +40,8 @@ public class AuthController(
         CancellationToken cancellationToken
     )
     {
-        var result = await authService.Signin(request, cancellationToken);
+        var authenticatedUser = currentUserService.GetAuthenticatedUser();
+        var result = await authService.Signin(request, authenticatedUser, cancellationToken);
         if (result.IsError)
             return StatusCode(result.ErrorHttpCode, result.ErrorIdentifier);
 

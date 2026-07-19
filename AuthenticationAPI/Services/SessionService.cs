@@ -1,21 +1,21 @@
-using AuthenticationAPI.Common;
 using AuthenticationAPI.Common.Interfaces;
 using AuthenticationAPI.Common.Results;
 using AuthenticationAPI.Common.Types;
 using AuthenticationAPI.Database;
 using AuthenticationAPI.Database.Entities;
-using AuthenticationAPI.DTO.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthenticationAPI.Services;
 
 public class SessionService(
     IJWTService jwtService,
-    AppDbContext db
+    AppDbContext db,
+    IHttpContextAccessor httpContextAccessor
 ) : ISessionService
 {
-    public async Task<Result<UserSession>> CreateSession(Account account, string deviceName, CancellationToken cancellationToken = default)
+    public async Task<Result<UserSession>> CreateSession(Account account, CancellationToken cancellationToken = default)
     {
+        var deviceName = GetUserDevice();
         var result = jwtService.GenerateNewJWT(account, deviceName);
         if (result.IsError)
             return Result<UserSession>.Failure("error.jwt_service_internal");
@@ -52,6 +52,14 @@ public class SessionService(
         return session;
     }
 
+    public async Task<Result> RevokeSession(AccountSession session, CancellationToken cancellationToken = default)
+    {
+        session.IsRevoked = true;
+        await db.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+    }
+
     public async Task<Result<UserSession>> RefreshSession(AccountSession? session, CancellationToken cancellationToken = default)
     {
         if (session == null || DateTime.UtcNow > session.ExpiresAt || session.IsRevoked || session.Account == null)
@@ -73,5 +81,24 @@ public class SessionService(
             RefreshToken: tokens.RefreshToken,
             DeviceName: session.Device
         ));
+    }
+
+    private string GetUserDevice()
+    {
+        var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString();
+        var deviceType = "Desktop";
+
+        if (!string.IsNullOrEmpty(userAgent))
+        {
+            if (userAgent.Contains("Mobi", StringComparison.OrdinalIgnoreCase))
+            {
+                deviceType = "Mobile";
+            }
+            else if (userAgent.Contains("iPad", StringComparison.OrdinalIgnoreCase) ||
+            userAgent.Contains("Tablet", StringComparison.OrdinalIgnoreCase))
+                deviceType = "Tablet";
+        }
+
+        return deviceType;
     }
 }
